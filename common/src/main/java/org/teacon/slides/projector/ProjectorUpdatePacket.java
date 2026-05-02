@@ -39,7 +39,8 @@ public final class ProjectorUpdatePacket {
 		mPos = buf.readBlockPos();
 		mRotation = ProjectorBlock.InternalRotation.VALUES[buf.readVarInt()];
 		mVisible = buf.readBoolean();
-		mTag = buf.readNbt();
+		CompoundTag tag = buf.readNbt();
+		mTag = tag != null ? tag : new CompoundTag();
 	}
 
 	public void sendToServer() {

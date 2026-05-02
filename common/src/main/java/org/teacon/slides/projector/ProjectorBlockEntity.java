@@ -51,6 +51,9 @@ public final class ProjectorBlockEntity extends BlockEntityClientSerializableMap
 
 	@Override
 	public void readCompoundTag(CompoundTag compoundTag) {
+		if (compoundTag == null) {
+			return;
+		}
 		super.readCompoundTag(compoundTag);
 		mLocation = compoundTag.getString("ImageLocation");
 		mColor = compoundTag.getInt("Color");
