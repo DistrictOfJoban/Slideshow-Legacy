@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
@@ -47,6 +48,8 @@ public final class ProjectorBlock extends Block implements EntityBlockMapper {
 
     public static final EnumProperty<InternalRotation>
             ROTATION = EnumProperty.create("rotation", InternalRotation.class);
+    public static final BooleanProperty
+            VISIBLE = BooleanProperty.create("visible");
     public static final EnumProperty<Direction>
             BASE = EnumProperty.create("base", Direction.class, Direction.Plane.VERTICAL);
 
@@ -62,6 +65,7 @@ public final class ProjectorBlock extends Block implements EntityBlockMapper {
                 .setValue(BASE, Direction.DOWN)
                 .setValue(FACING, Direction.EAST)
                 .setValue(POWERED, Boolean.FALSE)
+                .setValue(VISIBLE, Boolean.TRUE)
                 .setValue(ROTATION, InternalRotation.NONE));
     }
 
@@ -80,7 +84,7 @@ public final class ProjectorBlock extends Block implements EntityBlockMapper {
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(BASE, FACING, POWERED, ROTATION);
+        builder.add(BASE, FACING, POWERED, VISIBLE, ROTATION);
     }
 
     @Nonnull
@@ -98,6 +102,7 @@ public final class ProjectorBlock extends Block implements EntityBlockMapper {
                 .setValue(BASE, base)
                 .setValue(FACING, facing)
                 .setValue(POWERED, Boolean.FALSE)
+                .setValue(VISIBLE, Boolean.TRUE)
                 .setValue(ROTATION, rotation);
     }
 

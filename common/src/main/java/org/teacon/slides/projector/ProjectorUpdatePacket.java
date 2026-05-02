@@ -24,11 +24,13 @@ public final class ProjectorUpdatePacket {
 
 	private final BlockPos mPos;
 	private final ProjectorBlock.InternalRotation mRotation;
+	private final boolean mVisible;
 	private final CompoundTag mTag;
 
-	public ProjectorUpdatePacket(ProjectorBlockEntity entity, ProjectorBlock.InternalRotation rotation) {
+	public ProjectorUpdatePacket(ProjectorBlockEntity entity, ProjectorBlock.InternalRotation rotation, boolean visible) {
 		mPos = entity.getBlockPos();
 		mRotation = rotation;
+		mVisible = visible;
 		mTag = new CompoundTag();
 		entity.writeCompoundTag(mTag);
 	}
@@ -36,6 +38,7 @@ public final class ProjectorUpdatePacket {
 	public ProjectorUpdatePacket(FriendlyByteBuf buf) {
 		mPos = buf.readBlockPos();
 		mRotation = ProjectorBlock.InternalRotation.VALUES[buf.readVarInt()];
+		mVisible = buf.readBoolean();
 		mTag = buf.readNbt();
 	}
 
@@ -43,6 +46,7 @@ public final class ProjectorUpdatePacket {
 		FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
 		buffer.writeBlockPos(mPos);
 		buffer.writeVarInt(mRotation.ordinal());
+		buffer.writeBoolean(mVisible);
 		buffer.writeNbt(mTag);
 		RegistryClient.sendToServer(Slideshow.PACKET_UPDATE, buffer);
 	}
@@ -54,7 +58,9 @@ public final class ProjectorUpdatePacket {
 			BlockEntity blockEntity = level.getBlockEntity(projectorUpdatePacket.mPos);
 			// prevent remote chunk loading
 			if (ProjectorBlock.hasPermission(player) && level.isLoaded(projectorUpdatePacket.mPos) && blockEntity instanceof ProjectorBlockEntity) {
-				BlockState state = blockEntity.getBlockState().setValue(ProjectorBlock.ROTATION, projectorUpdatePacket.mRotation);
+				BlockState state = blockEntity.getBlockState()
+						.setValue(ProjectorBlock.ROTATION, projectorUpdatePacket.mRotation)
+						.setValue(ProjectorBlock.VISIBLE, projectorUpdatePacket.mVisible);
 				((ProjectorBlockEntity) blockEntity).readCompoundTag(projectorUpdatePacket.mTag);
 				level.setBlockAndUpdate(projectorUpdatePacket.mPos, state);
 				// mark chunk unsaved

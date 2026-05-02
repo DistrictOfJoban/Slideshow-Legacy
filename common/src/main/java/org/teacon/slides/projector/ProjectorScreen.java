@@ -48,6 +48,7 @@ public final class ProjectorScreen extends ScreenMapper {
 			OFFSET_Z_TEXT = Text.translatable("gui.slide_show.offset_z"),
 			FLIP_TEXT = Text.translatable("gui.slide_show.flip"),
 			ROTATE_TEXT = Text.translatable("gui.slide_show.rotate"),
+			VISIBILITY_TEXT = Text.translatable("gui.slide_show.model_visibility"),
 			SINGLE_DOUBLE_SIDED_TEXT = Text.translatable("gui.slide_show.single_double_sided"),
 			DISABLE_LOD_TEXT = Text.translatable("gui.slide_show.enable_disable_lod");
 
@@ -66,9 +67,12 @@ public final class ProjectorScreen extends ScreenMapper {
 	private ImageButton mSwitchDoubleSided;
 	private ImageButton mSwitchDisableLod;
 	private ImageButton mSwitchEnableLod;
+	private ImageButton mSwitchModelVisible;
+	private ImageButton mSwitchModelHidden;
 
 	private boolean mDisableLod;
 	private boolean mDoubleSided;
+	private boolean mVisible;
 	private int mImageColor = ~0;
 	private Vec2 mImageSize = Vec2.ONE;
 	private Vector3f mImageOffset = new Vector3f();
@@ -290,17 +294,32 @@ public final class ProjectorScreen extends ScreenMapper {
 			mSwitchDisableLod.visible = true;
 			mSwitchEnableLod.visible = false;
 		});
+		mSwitchModelVisible = new ImageButton(leftPos + 142, topPos + 175, 18, 19, 179, 53, 0, GUI_TEXTURE, button -> {
+			mVisible = false;
+			mSwitchModelVisible.visible = false;
+			mSwitchModelHidden.visible = true;
+		});
+		mSwitchModelHidden = new ImageButton(leftPos + 142, topPos + 175, 18, 19, 179, 33, 0, GUI_TEXTURE, button -> {
+			mVisible = true;
+			mSwitchModelVisible.visible = true;
+			mSwitchModelHidden.visible = false;
+		});
 		mDoubleSided = mEntity.mDoubleSided;
 		mDisableLod = mEntity.mDisableLod;
+		mVisible = mEntity.getBlockState().getValue(ProjectorBlock.VISIBLE);
 		mSwitchDoubleSided.visible = !mDoubleSided;
 		mSwitchSingleSided.visible = mDoubleSided;
 		mSwitchDisableLod.visible = !mEntity.mDisableLod;
 		mSwitchEnableLod.visible = mEntity.mDisableLod;
+		mSwitchModelVisible.visible = mVisible;
+		mSwitchModelHidden.visible = !mVisible;
 
 		addDrawableChild(mSwitchSingleSided);
 		addDrawableChild(mSwitchDoubleSided);
 		addDrawableChild(mSwitchDisableLod);
 		addDrawableChild(mSwitchEnableLod);
+		addDrawableChild(mSwitchModelVisible);
+		addDrawableChild(mSwitchModelHidden);
 	}
 
 	private void updateRotation(ProjectorBlock.InternalRotation newRotation) {
@@ -372,7 +391,7 @@ public final class ProjectorScreen extends ScreenMapper {
 		mEntity.mRotateX = rotX;
 		mEntity.mRotateY = rotY;
 		mEntity.mRotateZ = rotZ;
-		new ProjectorUpdatePacket(mEntity, mRotation).sendToServer();
+		new ProjectorUpdatePacket(mEntity, mRotation, mVisible).sendToServer();
 	}
 
 	@Override
@@ -470,6 +489,8 @@ public final class ProjectorScreen extends ScreenMapper {
 				renderTooltip(matrices, SINGLE_DOUBLE_SIDED_TEXT, mouseX, mouseY);
 			} else if (offsetX >= 9 && offsetY >= 175 && offsetX < 27 && offsetY < 194) {
 				renderTooltip(matrices, DISABLE_LOD_TEXT, mouseX, mouseY);
+			} else if (offsetX >= 142 && offsetY >= 175 && offsetX < 160 && offsetY < 194) {
+				renderTooltip(matrices, VISIBILITY_TEXT, mouseX, mouseY);
 			}
 		}
 	}
